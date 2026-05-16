@@ -13,15 +13,10 @@ import type { Hospital, InventoryItem, InventoryStatus } from "../models/index.j
 
 // ── Seed data ───────────────────────────────────────────────────────────
 
-interface SeedHospital extends Omit<Hospital, "id" | "createdAt" | "updatedAt"> {
-  inventory: Omit<InventoryItem, "id" | "hospitalId" | "lastUpdated">[];
-}
+interface SeedInventory extends Omit<InventoryItem, "id" | "hospitalId" | "lastUpdated" | "createdAt"> {}
 
-function status(count: number): InventoryStatus {
-  if (count <= 2) return "CRITICAL_SHORTAGE";
-  if (count <= 10) return "LOW";
-  if (count <= 50) return "ADEQUATE";
-  return "SURPLUS";
+interface SeedHospital extends Omit<Hospital, "id" | "createdAt" | "updatedAt"> {
+  inventory: SeedInventory[];
 }
 
 const hospitals: SeedHospital[] = [
@@ -36,11 +31,11 @@ const hospitals: SeedHospital[] = [
     },
     totalBeds: 894,
     inventory: [
-      { itemName: "N95 Respirators",           count: 1200, inUseCount: 300, status: "SURPLUS" },
-      { itemName: "Isolation Gowns",           count: 800,  inUseCount: 200, status: "SURPLUS" },
-      { itemName: "Negative-Pressure Pods",    count: 2,    inUseCount: 2,   status: "CRITICAL_SHORTAGE" },
-      { itemName: "Ventilators",               count: 45,   inUseCount: 40,  status: "LOW" },
-      { itemName: "Oseltamivir (Tamiflu) Doses", count: 500, inUseCount: 80, status: "ADEQUATE" },
+      { itemName: "N95 Respirators",              count: 1200, inUseCount: 300, threshold: 100, unit: "masks",  category: "PPE",              status: "SURPLUS" },
+      { itemName: "Isolation Gowns",              count: 800,  inUseCount: 200, threshold: 100, unit: "gowns",  category: "PPE",              status: "SURPLUS" },
+      { itemName: "Negative-Pressure Pods",       count: 2,    inUseCount: 2,   threshold: 3,   unit: "units",  category: "Isolation",        status: "CRITICAL_SHORTAGE" },
+      { itemName: "Ventilators",                  count: 45,   inUseCount: 40,  threshold: 10,  unit: "units",  category: "Life Support",     status: "LOW" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 500,  inUseCount: 80,  threshold: 50,  unit: "doses",  category: "Antivirals",       status: "ADEQUATE" },
     ],
   },
   {
@@ -54,11 +49,11 @@ const hospitals: SeedHospital[] = [
     },
     totalBeds: 664,
     inventory: [
-      { itemName: "N95 Respirators",           count: 60,   inUseCount: 50,  status: "LOW" },
-      { itemName: "Isolation Gowns",           count: 2000, inUseCount: 150, status: "SURPLUS" },
-      { itemName: "Negative-Pressure Pods",    count: 8,    inUseCount: 3,   status: "ADEQUATE" },
-      { itemName: "Ventilators",               count: 30,   inUseCount: 10,  status: "ADEQUATE" },
-      { itemName: "Oseltamivir (Tamiflu) Doses", count: 5,  inUseCount: 3,   status: "LOW" },
+      { itemName: "N95 Respirators",              count: 60,   inUseCount: 50,  threshold: 100, unit: "masks",  category: "PPE",              status: "LOW" },
+      { itemName: "Isolation Gowns",              count: 2000, inUseCount: 150, threshold: 100, unit: "gowns",  category: "PPE",              status: "SURPLUS" },
+      { itemName: "Negative-Pressure Pods",       count: 8,    inUseCount: 3,   threshold: 3,   unit: "units",  category: "Isolation",        status: "ADEQUATE" },
+      { itemName: "Ventilators",                  count: 30,   inUseCount: 10,  threshold: 10,  unit: "units",  category: "Life Support",     status: "ADEQUATE" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 5,    inUseCount: 3,   threshold: 50,  unit: "doses",  category: "Antivirals",       status: "LOW" },
     ],
   },
   {
@@ -72,11 +67,11 @@ const hospitals: SeedHospital[] = [
     },
     totalBeds: 811,
     inventory: [
-      { itemName: "N95 Respirators",           count: 400,  inUseCount: 100, status: "ADEQUATE" },
-      { itemName: "Isolation Gowns",           count: 1,    inUseCount: 1,   status: "CRITICAL_SHORTAGE" },
-      { itemName: "Negative-Pressure Pods",    count: 12,   inUseCount: 4,   status: "ADEQUATE" },
-      { itemName: "Ventilators",               count: 55,   inUseCount: 20,  status: "SURPLUS" },
-      { itemName: "Oseltamivir (Tamiflu) Doses", count: 250, inUseCount: 60, status: "ADEQUATE" },
+      { itemName: "N95 Respirators",              count: 400,  inUseCount: 100, threshold: 100, unit: "masks",  category: "PPE",              status: "ADEQUATE" },
+      { itemName: "Isolation Gowns",              count: 1,    inUseCount: 1,   threshold: 100, unit: "gowns",  category: "PPE",              status: "CRITICAL_SHORTAGE" },
+      { itemName: "Negative-Pressure Pods",       count: 12,   inUseCount: 4,   threshold: 3,   unit: "units",  category: "Isolation",        status: "ADEQUATE" },
+      { itemName: "Ventilators",                  count: 55,   inUseCount: 20,  threshold: 10,  unit: "units",  category: "Life Support",     status: "SURPLUS" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 250,  inUseCount: 60,  threshold: 50,  unit: "doses",  category: "Antivirals",       status: "ADEQUATE" },
     ],
   },
   {
@@ -90,11 +85,11 @@ const hospitals: SeedHospital[] = [
     },
     totalBeds: 749,
     inventory: [
-      { itemName: "N95 Respirators",           count: 2,    inUseCount: 2,   status: "CRITICAL_SHORTAGE" },
-      { itemName: "Isolation Gowns",           count: 350,  inUseCount: 100, status: "ADEQUATE" },
-      { itemName: "Negative-Pressure Pods",    count: 5,    inUseCount: 5,   status: "LOW" },
-      { itemName: "Ventilators",               count: 1,    inUseCount: 1,   status: "CRITICAL_SHORTAGE" },
-      { itemName: "Oseltamivir (Tamiflu) Doses", count: 800, inUseCount: 50, status: "SURPLUS" },
+      { itemName: "N95 Respirators",              count: 2,    inUseCount: 2,   threshold: 100, unit: "masks",  category: "PPE",              status: "CRITICAL_SHORTAGE" },
+      { itemName: "Isolation Gowns",              count: 350,  inUseCount: 100, threshold: 100, unit: "gowns",  category: "PPE",              status: "ADEQUATE" },
+      { itemName: "Negative-Pressure Pods",       count: 5,    inUseCount: 5,   threshold: 3,   unit: "units",  category: "Isolation",        status: "LOW" },
+      { itemName: "Ventilators",                  count: 1,    inUseCount: 1,   threshold: 10,  unit: "units",  category: "Life Support",     status: "CRITICAL_SHORTAGE" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 800,  inUseCount: 50,  threshold: 50,  unit: "doses",  category: "Antivirals",       status: "SURPLUS" },
     ],
   },
   {
@@ -108,11 +103,11 @@ const hospitals: SeedHospital[] = [
     },
     totalBeds: 547,
     inventory: [
-      { itemName: "N95 Respirators",           count: 900,  inUseCount: 100, status: "SURPLUS" },
-      { itemName: "Isolation Gowns",           count: 600,  inUseCount: 50,  status: "SURPLUS" },
-      { itemName: "Negative-Pressure Pods",    count: 3,    inUseCount: 1,   status: "ADEQUATE" },
-      { itemName: "Ventilators",               count: 80,   inUseCount: 15,  status: "SURPLUS" },
-      { itemName: "Oseltamivir (Tamiflu) Doses", count: 2,  inUseCount: 2,   status: "CRITICAL_SHORTAGE" },
+      { itemName: "N95 Respirators",              count: 900,  inUseCount: 100, threshold: 100, unit: "masks",  category: "PPE",              status: "SURPLUS" },
+      { itemName: "Isolation Gowns",              count: 600,  inUseCount: 50,  threshold: 100, unit: "gowns",  category: "PPE",              status: "SURPLUS" },
+      { itemName: "Negative-Pressure Pods",       count: 3,    inUseCount: 1,   threshold: 3,   unit: "units",  category: "Isolation",        status: "ADEQUATE" },
+      { itemName: "Ventilators",                  count: 80,   inUseCount: 15,  threshold: 10,  unit: "units",  category: "Life Support",     status: "SURPLUS" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 2,    inUseCount: 2,   threshold: 50,  unit: "doses",  category: "Antivirals",       status: "CRITICAL_SHORTAGE" },
     ],
   },
 ];
@@ -138,6 +133,7 @@ async function seed() {
       batch.set(invRef, {
         ...item,
         hospitalId: hospRef.id,
+        createdAt: now,
         lastUpdated: now,
       });
     }
