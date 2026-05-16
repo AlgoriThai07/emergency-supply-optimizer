@@ -54,11 +54,11 @@ export default function MapViewer() {
   }, [routeOrigin, routeDest]);
 
   if (isLoading) {
-    return <div style={{ height: '100vh', width: '100vw', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#111', color: '#fff' }}>Loading Map...</div>;
+    return <div style={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#111', color: '#fff' }}>Loading Map...</div>;
   }
 
   return (
-    <div style={{ height: '100vh', width: '100vw', position: 'relative', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ height: '100%', width: '100%', position: 'relative', fontFamily: 'Arial, sans-serif' }}>
       {etaMins && (
         <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(15, 23, 42, 0.9)', color: '#fff', padding: '15px 25px', borderRadius: '8px', border: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', zIndex: 10 }}>
           <div>
