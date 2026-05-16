@@ -1,16 +1,10 @@
 import { Router } from "express";
-import { mockHospitals } from "../config/mockHospitals.js";
+import { findHospital, findInventoryItem, mockHospitals, getHospitalInventory, touchHospital, touchInventoryItem, } from "../config/mockHospitals.js";
+import { isSurplus } from "../utils/inventoryStatus.js";
 import { sendEmergencyAlert } from "../utils/sendSMS.js";
 const router = Router();
-/** Euclidean distance on lat/lng (hackathon-spec formula) */
 function euclideanDistance(lat1, lng1, lat2, lng2) {
     return Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2));
-}
-function findHospital(id) {
-    return mockHospitals.find((h) => h.id === id);
-}
-function getResource(hospital, resourceId) {
-    return hospital.inventory[resourceId];
 }
 /**
  * POST /api/logistics/match
@@ -29,8 +23,8 @@ router.post("/match", (req, res) => {
         res.status(404).json({ error: `Hospital not found: ${deficitHospitalId}` });
         return;
     }
-    const deficitResource = getResource(deficitHospital, resourceId);
-    if (!deficitResource) {
+    const deficitItem = findInventoryItem(deficitHospitalId, resourceId);
+    if (!deficitItem) {
         res.status(404).json({
             error: `Resource '${resourceId}' not found at ${deficitHospital.name}`,
         });
@@ -39,10 +33,10 @@ router.post("/match", (req, res) => {
     const surplusHubs = mockHospitals.filter((h) => {
         if (h.id === deficitHospitalId)
             return false;
-        const item = getResource(h, resourceId);
+        const item = findInventoryItem(h.id, resourceId);
         if (!item)
             return false;
-        return item.stock > item.threshold;
+        return isSurplus(item.count, item.threshold);
     });
     if (surplusHubs.length === 0) {
         res.status(404).json({
@@ -51,7 +45,7 @@ router.post("/match", (req, res) => {
             deficitHospital: {
                 id: deficitHospital.id,
                 name: deficitHospital.name,
-                resource: deficitResource,
+                item: deficitItem,
             },
             surplusCandidates: [],
         });
@@ -67,7 +61,7 @@ router.post("/match", (req, res) => {
             closestMatch = candidate;
         }
     }
-    const matchedResource = getResource(closestMatch, resourceId);
+    const matchedItem = findInventoryItem(closestMatch.id, resourceId);
     res.status(200).json({
         success: true,
         resourceId,
@@ -76,20 +70,19 @@ router.post("/match", (req, res) => {
             id: deficitHospital.id,
             name: deficitHospital.name,
             location: deficitHospital.location,
-            overall_status: deficitHospital.overall_status,
-            resource: deficitResource,
+            item: deficitItem,
         },
         matchedSurplusHospital: {
             id: closestMatch.id,
             name: closestMatch.name,
             location: closestMatch.location,
-            overall_status: closestMatch.overall_status,
-            resource: matchedResource,
+            item: matchedItem,
         },
         allSurplusCandidates: surplusHubs.map((h) => ({
             id: h.id,
             name: h.name,
-            stock: getResource(h, resourceId).stock,
+            count: findInventoryItem(h.id, resourceId).count,
+            status: findInventoryItem(h.id, resourceId).status,
         })),
     });
 });
@@ -130,24 +123,29 @@ router.post("/transfer", async (req, res) => {
         });
         return;
     }
-    const originItem = getResource(origin, resourceId);
-    const destItem = getResource(destination, resourceId);
+    const originItem = findInventoryItem(originHospitalId, resourceId);
+    const destItem = findInventoryItem(destHospitalId, resourceId);
     if (!originItem || !destItem) {
-        res.status(404).json({ error: `Resource '${resourceId}' missing at one or both hospitals` });
+        res.status(404).json({
+            error: `Resource '${resourceId}' missing at one or both hospitals`,
+        });
         return;
     }
-    if (originItem.stock < quantity) {
+    if (originItem.count < quantity) {
         res.status(400).json({
             error: `Insufficient stock at ${origin.name}`,
-            available: originItem.stock,
+            available: originItem.count,
             requested: quantity,
         });
         return;
     }
-    originItem.stock -= quantity;
-    destItem.stock += quantity;
-    const resourceLabel = originItem.name;
-    const alertMessage = `Beacon Alert: Deployed critical shipment of ${resourceLabel} (${quantity} ${originItem.unit}) from ${origin.name} to ${destination.name}!`;
+    originItem.count -= quantity;
+    destItem.count += quantity;
+    touchInventoryItem(originItem);
+    touchInventoryItem(destItem);
+    touchHospital(origin);
+    touchHospital(destination);
+    const alertMessage = `Beacon Alert: Deployed critical shipment of ${originItem.itemName} (${quantity} ${originItem.unit}) from ${origin.name} to ${destination.name}!`;
     const testReceiver = process.env.TEST_RECEIVER_NUMBER;
     let smsResult = null;
     if (testReceiver) {
@@ -161,14 +159,20 @@ router.post("/transfer", async (req, res) => {
         message: "Transfer completed and alert dispatched",
         transfer: {
             resourceId,
-            resourceName: resourceLabel,
+            itemName: originItem.itemName,
             quantity,
             unit: originItem.unit,
-            origin: { id: origin.id, name: origin.name, newStock: originItem.stock },
+            origin: {
+                id: origin.id,
+                name: origin.name,
+                newCount: originItem.count,
+                status: originItem.status,
+            },
             destination: {
                 id: destination.id,
                 name: destination.name,
-                newStock: destItem.stock,
+                newCount: destItem.count,
+                status: destItem.status,
             },
         },
         alert: {
@@ -178,9 +182,14 @@ router.post("/transfer", async (req, res) => {
         },
     });
 });
-/** List in-memory hospitals for frontend dev */
+/** Hospitals with nested inventory (frontend-friendly) */
 router.get("/hospitals", (_req, res) => {
-    res.status(200).json({ hospitals: mockHospitals });
+    res.status(200).json({
+        hospitals: mockHospitals.map((h) => ({
+            ...h,
+            inventory: getHospitalInventory(h.id),
+        })),
+    });
 });
 export default router;
 //# sourceMappingURL=logistics.js.map

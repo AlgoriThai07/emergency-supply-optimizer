@@ -1,25 +1,9 @@
-/** Single inventory line item at a hospital */
-export interface InventoryItem {
-    name: string;
-    category: string;
-    stock: number;
-    threshold: number;
-    unit: string;
-}
-/** Hospital record used by matching + transfer endpoints */
-export interface Hospital {
-    id: string;
-    name: string;
-    location: {
-        latitude: number;
-        longitude: number;
-    };
-    overall_status: string;
-    inventory: Record<string, InventoryItem>;
-}
-/**
- * In-memory hospital network (Chicago metro).
- * Mutated by POST /api/logistics/transfer until Firestore is live.
- */
+import type { Hospital, InventoryItem } from "../models/index.js";
 export declare let mockHospitals: Hospital[];
+export declare let mockInventory: InventoryItem[];
+export declare function findHospital(id: string): Hospital | undefined;
+export declare function findInventoryItem(hospitalId: string, itemId: string): InventoryItem | undefined;
+export declare function getHospitalInventory(hospitalId: string): InventoryItem[];
+export declare function touchInventoryItem(item: InventoryItem): void;
+export declare function touchHospital(hospital: Hospital): void;
 //# sourceMappingURL=mockHospitals.d.ts.map
