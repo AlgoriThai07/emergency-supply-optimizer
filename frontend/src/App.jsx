@@ -5,6 +5,7 @@ import CentralCommandMap from './components/stitch/CentralCommandMap';
 import HospitalInventoryDashboard from './components/stitch/HospitalInventoryDashboard';
 import SupplyMatchmakerRouting from './components/stitch/SupplyMatchmakerRouting';
 import RegionalReadinessOverview from './components/stitch/RegionalReadinessOverview';
+import NurseInputPage from './components/stitch/NurseInputPage';
 
 function App() {
   const [activeScreen, setActiveScreen] = useState('map');
@@ -19,6 +20,8 @@ function App() {
         return <SupplyMatchmakerRouting isEmbedded />;
       case 'readiness':
         return <RegionalReadinessOverview isEmbedded />;
+      case 'nurse-input':
+        return <NurseInputPage isEmbedded />;
       default:
         return <CentralCommandMap isEmbedded />;
     }
