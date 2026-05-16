@@ -10,7 +10,6 @@ export type TransferRequestStatus =
 export interface TransferRequest {
   id?: string;
 
-  itemKey: string;
   itemName: string;
   quantity: number;
   unit: string;

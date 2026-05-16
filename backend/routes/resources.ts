@@ -87,7 +87,6 @@ router.patch("/inventory/:itemId", async (req: Request, res: Response) => {
       hospitalId: currentData.hospitalId,
       hospitalName,
       inventoryItemId: itemId,
-      itemKey: currentData.itemName.toLowerCase().replace(/\s+/g, "_"),
       itemName: currentData.itemName,
       previousCount: currentData.count,
       change: newCount - currentData.count,
@@ -111,7 +110,7 @@ router.patch("/inventory/:itemId", async (req: Request, res: Response) => {
  */
 router.post("/requests", async (req: Request, res: Response) => {
   try {
-    const { toHospitalId, itemKey, itemName, quantity, unit, reason } = req.body;
+    const { toHospitalId, itemName, quantity, unit, reason } = req.body;
 
     const toHospitalDoc = await db.collection("hospitals").doc(toHospitalId).get();
     if (!toHospitalDoc.exists) {
@@ -120,7 +119,6 @@ router.post("/requests", async (req: Request, res: Response) => {
     }
 
     const requestData: Omit<TransferRequest, "id"> = {
-      itemKey,
       itemName,
       quantity,
       unit,
