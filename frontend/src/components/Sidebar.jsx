@@ -5,8 +5,7 @@ const Sidebar = ({ activeScreen, onScreenChange }) => {
     { id: 'map', label: 'Command Map', icon: 'map' },
     { id: 'inventory', label: 'Hospital Inventory', icon: 'inventory_2' },
     { id: 'matchmaker', label: 'Supply Matchmaker', icon: 'hub' },
-    { id: 'readiness', label: 'Regional Readiness', icon: 'analytics' },
-    { id: 'nurse-input', label: 'Rapid Input', icon: 'medical_services' },
+    { id: 'readiness', label: 'Regional Readiness', icon: 'analytics' }
   ];
 
   return (

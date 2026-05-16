@@ -70,10 +70,10 @@ const NurseInputPage = ({ isEmbedded = false }) => {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 md:p-10">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
           {/* Manual Input Form */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             <div className="bg-white border border-outline-variant rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">edit_document</span>
@@ -139,7 +139,7 @@ const NurseInputPage = ({ isEmbedded = false }) => {
           </div>
 
           {/* Voice Command Demo */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="space-y-6">
             <div className="bg-gradient-to-b from-indigo-50 to-white border border-indigo-100 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
 
