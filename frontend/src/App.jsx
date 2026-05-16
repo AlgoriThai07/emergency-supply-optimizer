@@ -6,6 +6,7 @@ import HospitalInventoryDashboard from './components/stitch/HospitalInventoryDas
 import SupplyMatchmakerRouting from './components/stitch/SupplyMatchmakerRouting';
 import RegionalReadinessOverview from './components/stitch/RegionalReadinessOverview';
 import NurseInputPage from './components/stitch/NurseInputPage';
+import MapViewer from './components/MapViewer';
 
 const RoleSelection = ({ onSelectRole }) => (
   <div className="flex flex-col items-center justify-center h-screen bg-surface-bright">
@@ -43,11 +44,31 @@ const RoleSelection = ({ onSelectRole }) => (
 function App() {
   const [userRole, setUserRole] = useState(null); // 'nurse', 'dispatcher', or null
   const [activeScreen, setActiveScreen] = useState('map');
+  const [showSandboxMap, setShowSandboxMap] = useState(false);
 
   const handleLogout = () => {
     setUserRole(null);
     setActiveScreen('map');
+    setShowSandboxMap(false);
   };
+
+  if (!userRole) {
+    return <RoleSelection onSelectRole={setUserRole} />;
+  }
+
+  if (showSandboxMap) {
+    return (
+      <div style={{ position: 'relative' }}>
+        <button 
+          onClick={() => setShowSandboxMap(false)}
+          style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 999, padding: '10px 15px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          ← Back to Main Dashboard
+        </button>
+        <MapViewer />
+      </div>
+    );
+  }
 
   const renderDispatcherScreen = () => {
     switch (activeScreen) {
@@ -63,10 +84,6 @@ function App() {
         return <CentralCommandMap isEmbedded />;
     }
   };
-
-  if (!userRole) {
-    return <RoleSelection onSelectRole={setUserRole} />;
-  }
 
   if (userRole === 'nurse') {
     return (
@@ -85,6 +102,12 @@ function App() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activeScreen={activeScreen} onScreenChange={setActiveScreen} />
         <main className="flex-1 overflow-hidden relative bg-surface-bright">
+          <button 
+            onClick={() => setShowSandboxMap(true)}
+            style={{ position: 'absolute', bottom: '15px', right: '15px', zIndex: 99, padding: '6px 12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            🛠️ Open Sandbox Map
+          </button>
           {renderDispatcherScreen()}
         </main>
       </div>
