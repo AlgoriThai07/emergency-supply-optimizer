@@ -2,7 +2,7 @@ import { Router } from "express";
 
 const router = Router();
 
-/** Dummy endpoint — replace with Snowflake-backed regional analytics */
+/** Dummy endpoint — replace with regional analytics */
 router.get("/test", (_req, res) => {
   res.json({
     route: "analytics",
