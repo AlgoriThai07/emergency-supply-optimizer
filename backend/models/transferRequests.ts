@@ -8,25 +8,15 @@ export type TransferRequestStatus =
   | "CANCELLED";
 
 export interface TransferRequest {
-  id?: string;
-
-  itemName: string;
+  requestId: string;
+  itemId: string;
   quantity: number;
-  unit: string;
-
   fromHospitalId: string;
-  fromHospitalName: string;
-
   toHospitalId: string;
-  toHospitalName: string;
-
   status: TransferRequestStatus;
-
   distance?: number;
   estimatedTimeMinutes?: number;
-
   reason: string;
-
   createdAt: firestore.Timestamp;
   updatedAt: firestore.Timestamp;
 }
