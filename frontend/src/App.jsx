@@ -6,9 +6,8 @@ import HospitalInventoryDashboard from './components/stitch/HospitalInventoryDas
 import SupplyMatchmakerRouting from './components/stitch/SupplyMatchmakerRouting';
 import RegionalReadinessOverview from './components/stitch/RegionalReadinessOverview';
 import NurseInputPage from './components/stitch/NurseInputPage';
-
-
 import MapViewer from './components/MapViewer';
+import { VoiceAssistant } from './components/VoiceAssistant';
 
 function App() {
   const [activeScreen, setActiveScreen] = useState('map');
@@ -48,8 +47,10 @@ function App() {
     }
   };
 
+  const [activeHospitalId, setActiveHospitalId] = useState('northwestern_memorial'); // Placeholder for now
+
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background text-on-surface">
+    <div className="flex flex-col h-screen overflow-hidden bg-background text-on-surface font-sans">
       <TopBar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activeScreen={activeScreen} onScreenChange={setActiveScreen} />
@@ -66,6 +67,7 @@ function App() {
           {renderScreen()}
         </main>
       </div>
+      <VoiceAssistant hospitalId={activeHospitalId} />
     </div>
   );
 }

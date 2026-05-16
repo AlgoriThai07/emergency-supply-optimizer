@@ -1,4 +1,5 @@
 import type { firestore } from "firebase-admin";
+import type { InventoryEntry } from "./inventoryEntry.js";
 
 export interface ContactInfo {
   phone: string;
@@ -19,6 +20,8 @@ export interface Hospital {
   location: Location;
   totalBeds: number;
   status?: "NORMAL" | "HAS_SHORTAGE";
+  /** Populated by service-layer hydration, not stored in Firestore doc. */
+  inventory?: InventoryEntry[];
   createdAt: firestore.Timestamp;
   updatedAt: firestore.Timestamp;
 }

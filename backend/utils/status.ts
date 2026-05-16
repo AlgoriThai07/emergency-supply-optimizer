@@ -31,24 +31,3 @@ export function getInventoryStatus(
   if (safeCount >= threshold * SURPLUS_RATIO) return "SURPLUS";
   return "ADEQUATE";
 }
-
-/**
- * Example — how this fits into an inventory update flow.
- *
- * import { Timestamp } from "firebase-admin/firestore";
- * import type { InventoryItem } from "../models/index.js";
- * import { getInventoryStatus } from "./statusService.js";
- *
- * function applyInventoryUpdate(
- *   item: InventoryItem,
- *   newCount: number
- * ): InventoryItem {
- *   const available = newCount - item.inUseCount;
- *   return {
- *     ...item,
- *     count: newCount,
- *     status: getInventoryStatus(available, item.threshold),
- *     lastUpdated: Timestamp.now(),
- *   };
- * }
- */

@@ -9,23 +9,29 @@
 import "dotenv/config";
 import { FieldValue } from "firebase-admin/firestore";
 import { db } from "../config/firebase-config.js";
-import type { Hospital, InventoryItem, InventoryStatus } from "../models/index.js";
+import type { Hospital, InventoryStatus, Item } from "../models/index.js";
 
 // ── Seed data ───────────────────────────────────────────────────────────
 
 interface SeedInventory {
-  itemName: string;
+  itemName: string; // Used strictly for linking to the global item during seeding
   count: number;
   inUseCount: number;
   threshold: number;
-  unit: string;
-  category: string;
   status: InventoryStatus;
 }
 
-interface SeedHospital extends Omit<Hospital, "id" | "createdAt" | "updatedAt"> {
-  inventory: SeedInventory[];
+interface SeedHospital extends Omit<Hospital, "id" | "createdAt" | "updatedAt" | "inventory"> {
+  seedInventory: SeedInventory[];
 }
+
+const GLOBAL_ITEMS: Omit<Item, "itemId" | "createdAt">[] = [
+  { name: "N95 Respirators", unit: "masks", category: "PPE" },
+  { name: "Isolation Gowns", unit: "gowns", category: "PPE" },
+  { name: "Negative-Pressure Pods", unit: "units", category: "Isolation" },
+  { name: "Ventilators", unit: "units", category: "Life Support" },
+  { name: "Oseltamivir (Tamiflu) Doses", unit: "doses", category: "Antivirals" },
+];
 
 const hospitals: SeedHospital[] = [
   {
@@ -38,12 +44,12 @@ const hospitals: SeedHospital[] = [
       pocName: "Dr. Sarah Chen",
     },
     totalBeds: 894,
-    inventory: [
-      { itemName: "N95 Respirators",              count: 1200, inUseCount: 300, threshold: 100, unit: "masks",  category: "PPE",              status: "SURPLUS" },
-      { itemName: "Isolation Gowns",              count: 800,  inUseCount: 200, threshold: 100, unit: "gowns",  category: "PPE",              status: "SURPLUS" },
-      { itemName: "Negative-Pressure Pods",       count: 2,    inUseCount: 2,   threshold: 3,   unit: "units",  category: "Isolation",        status: "CRITICAL_SHORTAGE" },
-      { itemName: "Ventilators",                  count: 45,   inUseCount: 40,  threshold: 10,  unit: "units",  category: "Life Support",     status: "LOW" },
-      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 500,  inUseCount: 80,  threshold: 50,  unit: "doses",  category: "Antivirals",       status: "ADEQUATE" },
+    seedInventory: [
+      { itemName: "N95 Respirators",              count: 1200, inUseCount: 300, threshold: 100, status: "SURPLUS" },
+      { itemName: "Isolation Gowns",              count: 800,  inUseCount: 200, threshold: 100, status: "SURPLUS" },
+      { itemName: "Negative-Pressure Pods",       count: 2,    inUseCount: 2,   threshold: 3,   status: "CRITICAL_SHORTAGE" },
+      { itemName: "Ventilators",                  count: 45,   inUseCount: 40,  threshold: 10,  status: "LOW" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 500,  inUseCount: 80,  threshold: 50,  status: "ADEQUATE" },
     ],
   },
   {
@@ -56,12 +62,12 @@ const hospitals: SeedHospital[] = [
       pocName: "Dr. Marcus Webb",
     },
     totalBeds: 664,
-    inventory: [
-      { itemName: "N95 Respirators",              count: 60,   inUseCount: 50,  threshold: 100, unit: "masks",  category: "PPE",              status: "LOW" },
-      { itemName: "Isolation Gowns",              count: 2000, inUseCount: 150, threshold: 100, unit: "gowns",  category: "PPE",              status: "SURPLUS" },
-      { itemName: "Negative-Pressure Pods",       count: 8,    inUseCount: 3,   threshold: 3,   unit: "units",  category: "Isolation",        status: "ADEQUATE" },
-      { itemName: "Ventilators",                  count: 30,   inUseCount: 10,  threshold: 10,  unit: "units",  category: "Life Support",     status: "ADEQUATE" },
-      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 5,    inUseCount: 3,   threshold: 50,  unit: "doses",  category: "Antivirals",       status: "LOW" },
+    seedInventory: [
+      { itemName: "N95 Respirators",              count: 60,   inUseCount: 50,  threshold: 100, status: "LOW" },
+      { itemName: "Isolation Gowns",              count: 2000, inUseCount: 150, threshold: 100, status: "SURPLUS" },
+      { itemName: "Negative-Pressure Pods",       count: 8,    inUseCount: 3,   threshold: 3,   status: "ADEQUATE" },
+      { itemName: "Ventilators",                  count: 30,   inUseCount: 10,  threshold: 10,  status: "ADEQUATE" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 5,    inUseCount: 3,   threshold: 50,  status: "LOW" },
     ],
   },
   {
@@ -74,12 +80,12 @@ const hospitals: SeedHospital[] = [
       pocName: "Dr. Priya Patel",
     },
     totalBeds: 811,
-    inventory: [
-      { itemName: "N95 Respirators",              count: 400,  inUseCount: 100, threshold: 100, unit: "masks",  category: "PPE",              status: "ADEQUATE" },
-      { itemName: "Isolation Gowns",              count: 1,    inUseCount: 1,   threshold: 100, unit: "gowns",  category: "PPE",              status: "CRITICAL_SHORTAGE" },
-      { itemName: "Negative-Pressure Pods",       count: 12,   inUseCount: 4,   threshold: 3,   unit: "units",  category: "Isolation",        status: "ADEQUATE" },
-      { itemName: "Ventilators",                  count: 55,   inUseCount: 20,  threshold: 10,  unit: "units",  category: "Life Support",     status: "SURPLUS" },
-      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 250,  inUseCount: 60,  threshold: 50,  unit: "doses",  category: "Antivirals",       status: "ADEQUATE" },
+    seedInventory: [
+      { itemName: "N95 Respirators",              count: 400,  inUseCount: 100, threshold: 100, status: "ADEQUATE" },
+      { itemName: "Isolation Gowns",              count: 1,    inUseCount: 1,   threshold: 100, status: "CRITICAL_SHORTAGE" },
+      { itemName: "Negative-Pressure Pods",       count: 12,   inUseCount: 4,   threshold: 3,   status: "ADEQUATE" },
+      { itemName: "Ventilators",                  count: 55,   inUseCount: 20,  threshold: 10,  status: "SURPLUS" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 250,  inUseCount: 60,  threshold: 50,  status: "ADEQUATE" },
     ],
   },
   {
@@ -92,12 +98,12 @@ const hospitals: SeedHospital[] = [
       pocName: "Dr. James Okafor",
     },
     totalBeds: 749,
-    inventory: [
-      { itemName: "N95 Respirators",              count: 2,    inUseCount: 2,   threshold: 100, unit: "masks",  category: "PPE",              status: "CRITICAL_SHORTAGE" },
-      { itemName: "Isolation Gowns",              count: 350,  inUseCount: 100, threshold: 100, unit: "gowns",  category: "PPE",              status: "ADEQUATE" },
-      { itemName: "Negative-Pressure Pods",       count: 5,    inUseCount: 5,   threshold: 3,   unit: "units",  category: "Isolation",        status: "LOW" },
-      { itemName: "Ventilators",                  count: 1,    inUseCount: 1,   threshold: 10,  unit: "units",  category: "Life Support",     status: "CRITICAL_SHORTAGE" },
-      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 800,  inUseCount: 50,  threshold: 50,  unit: "doses",  category: "Antivirals",       status: "SURPLUS" },
+    seedInventory: [
+      { itemName: "N95 Respirators",              count: 2,    inUseCount: 2,   threshold: 100, status: "CRITICAL_SHORTAGE" },
+      { itemName: "Isolation Gowns",              count: 350,  inUseCount: 100, threshold: 100, status: "ADEQUATE" },
+      { itemName: "Negative-Pressure Pods",       count: 5,    inUseCount: 5,   threshold: 3,   status: "LOW" },
+      { itemName: "Ventilators",                  count: 1,    inUseCount: 1,   threshold: 10,  status: "CRITICAL_SHORTAGE" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 800,  inUseCount: 50,  threshold: 50,  status: "SURPLUS" },
     ],
   },
   {
@@ -110,12 +116,12 @@ const hospitals: SeedHospital[] = [
       pocName: "Dr. Ana Reyes",
     },
     totalBeds: 547,
-    inventory: [
-      { itemName: "N95 Respirators",              count: 900,  inUseCount: 100, threshold: 100, unit: "masks",  category: "PPE",              status: "SURPLUS" },
-      { itemName: "Isolation Gowns",              count: 600,  inUseCount: 50,  threshold: 100, unit: "gowns",  category: "PPE",              status: "SURPLUS" },
-      { itemName: "Negative-Pressure Pods",       count: 3,    inUseCount: 1,   threshold: 3,   unit: "units",  category: "Isolation",        status: "ADEQUATE" },
-      { itemName: "Ventilators",                  count: 80,   inUseCount: 15,  threshold: 10,  unit: "units",  category: "Life Support",     status: "SURPLUS" },
-      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 2,    inUseCount: 2,   threshold: 50,  unit: "doses",  category: "Antivirals",       status: "CRITICAL_SHORTAGE" },
+    seedInventory: [
+      { itemName: "N95 Respirators",              count: 900,  inUseCount: 100, threshold: 100, status: "SURPLUS" },
+      { itemName: "Isolation Gowns",              count: 600,  inUseCount: 50,  threshold: 100, status: "SURPLUS" },
+      { itemName: "Negative-Pressure Pods",       count: 3,    inUseCount: 1,   threshold: 3,   status: "ADEQUATE" },
+      { itemName: "Ventilators",                  count: 80,   inUseCount: 15,  threshold: 10,  status: "SURPLUS" },
+      { itemName: "Oseltamivir (Tamiflu) Doses",  count: 2,    inUseCount: 2,   threshold: 50,  status: "CRITICAL_SHORTAGE" },
     ],
   },
 ];
@@ -126,9 +132,21 @@ async function seed() {
   const batch = db.batch();
   const now = FieldValue.serverTimestamp();
 
+  // 1. Seed global items and build a map of itemName -> itemId
+  const itemIdMap = new Map<string, string>();
+  for (const item of GLOBAL_ITEMS) {
+    const itemRef = db.collection("items").doc();
+    batch.set(itemRef, {
+      ...item,
+      createdAt: now,
+    });
+    itemIdMap.set(item.name, itemRef.id);
+  }
+
+  // 2. Seed hospitals with inventory as subcollections
   for (const h of hospitals) {
     const hospRef = db.collection("hospitals").doc();
-    const { inventory, ...hospData } = h;
+    const { seedInventory, ...hospData } = h;
 
     batch.set(hospRef, {
       ...hospData,
@@ -136,12 +154,22 @@ async function seed() {
       updatedAt: now,
     });
 
-    for (const item of inventory) {
-      const invRef = db.collection("inventory").doc();
-      batch.set(invRef, {
-        ...item,
-        availableCount: item.count - item.inUseCount,
+    for (const entry of seedInventory) {
+      const resolvedItemId = itemIdMap.get(entry.itemName);
+      if (!resolvedItemId) {
+        throw new Error(`Failed to resolve itemId for: ${entry.itemName}`);
+      }
+
+      // Write inventory entries as subcollection docs under the hospital
+      const entryRef = hospRef.collection("inventory").doc();
+      batch.set(entryRef, {
+        itemId: resolvedItemId,
         hospitalId: hospRef.id,
+        count: entry.count,
+        inUseCount: entry.inUseCount,
+        threshold: entry.threshold,
+        status: entry.status,
+        availableCount: entry.count - entry.inUseCount,
         createdAt: now,
         lastUpdated: now,
       });
@@ -149,7 +177,7 @@ async function seed() {
   }
 
   await batch.commit();
-  console.log(`✅  Seeded ${hospitals.length} hospitals and ${hospitals.reduce((n, h) => n + h.inventory.length, 0)} inventory items`);
+  console.log(`✅  Seeded ${GLOBAL_ITEMS.length} global items, ${hospitals.length} hospitals with ${hospitals.reduce((n, h) => n + h.seedInventory.length, 0)} inventory entries (subcollections)`);
 }
 
 seed().catch((err) => {
