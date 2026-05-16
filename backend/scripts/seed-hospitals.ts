@@ -13,7 +13,15 @@ import type { Hospital, InventoryItem, InventoryStatus } from "../models/index.j
 
 // ── Seed data ───────────────────────────────────────────────────────────
 
-interface SeedInventory extends Omit<InventoryItem, "id" | "hospitalId" | "lastUpdated" | "createdAt"> {}
+interface SeedInventory {
+  itemName: string;
+  count: number;
+  inUseCount: number;
+  threshold: number;
+  unit: string;
+  category: string;
+  status: InventoryStatus;
+}
 
 interface SeedHospital extends Omit<Hospital, "id" | "createdAt" | "updatedAt"> {
   inventory: SeedInventory[];
@@ -132,6 +140,7 @@ async function seed() {
       const invRef = db.collection("inventory").doc();
       batch.set(invRef, {
         ...item,
+        availableCount: item.count - item.inUseCount,
         hospitalId: hospRef.id,
         createdAt: now,
         lastUpdated: now,

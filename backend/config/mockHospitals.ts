@@ -62,11 +62,16 @@ export let mockHospitals: Hospital[] = [
 ];
 
 function item(
-  data: Omit<InventoryItem, "createdAt" | "lastUpdated" | "status">
+  data: Omit<
+    InventoryItem,
+    "createdAt" | "lastUpdated" | "status" | "availableCount"
+  >
 ): InventoryItem {
+  const availableCount = Math.max(data.count - data.inUseCount, 0);
   return {
     ...data,
-    status: computeInventoryStatus(data.count, data.threshold),
+    availableCount,
+    status: computeInventoryStatus(availableCount, data.threshold),
     createdAt: now,
     lastUpdated: now,
   };
