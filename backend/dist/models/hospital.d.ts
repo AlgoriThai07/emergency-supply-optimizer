@@ -1,4 +1,4 @@
-import type { firestore } from 'firebase-admin';
+import type { firestore } from "firebase-admin";
 export interface ContactInfo {
     phone: string;
     email: string;
@@ -15,6 +15,7 @@ export interface Hospital {
     contactInfo: ContactInfo;
     location: Location;
     totalBeds: number;
+    status?: "NORMAL" | "HAS_SHORTAGE";
     createdAt: firestore.Timestamp;
     updatedAt: firestore.Timestamp;
 }
