@@ -2,29 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { Map, Marker, Popup, Source, Layer } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-const MAPBOX_TOKEN = "pk.eyJ1IjoidGhxemltIiwiYSI6ImNtcDhubnF1YzBlc2ozNHBvaWVyNzJrMTQifQ.ZeFHJHA7JQhwwruoIRVvgw"; 
+const MAPBOX_TOKEN = "pk.eyJ1IjoidGhxemltIiwiYSI6ImNtcDhubnF1YzBlc2ozNHBvaWVyNzJrMTQifQ.ZeFHJHA7JQhwwruoIRVvgw";
 
 const getStatusColor = (status) => {
-  switch(status) {
+  switch (status) {
     case 'CRITICAL': return '#ef4444';
-    case 'LOW': return '#f59e0b';     
-    case 'DONOR': return '#3b82f6';   
+    case 'LOW': return '#f59e0b';
+    case 'DONOR': return '#3b82f6';
     case 'OK': default: return '#22c55e';
   }
 };
 
 const LOCAL_DUMMY_DATA = [
-  { id: "h1", name: "Chicago Mercy", status: "CRITICAL", location: { latitude: 41.8494, longitude: -87.6244 } },
-  { id: "h2", name: "Northwestern Memorial", status: "OK", location: { latitude: 41.8950, longitude: -87.6210 } },
-  { id: "h3", name: "Rush University", status: "DONOR", location: { latitude: 41.8744, longitude: -87.6690 } },
-  { id: "h4", name: "Mount Sinai", status: "LOW", location: { latitude: 41.8610, longitude: -87.6946 } }
+  { id: "h1", name: "Chicago Mercy", status: "CRITICAL", location: { latitude: 41.8494, longitude: -87.6244 }, inventory: { bloodBags: 3, pharmaceuticals: 11, devices: 2 } },
+  { id: "h2", name: "Northwestern Memorial", status: "OK", location: { latitude: 41.8950, longitude: -87.6210 }, inventory: { bloodBags: 27, pharmaceuticals: 80, devices: 15 } },
+  { id: "h3", name: "Rush University", status: "DONOR", location: { latitude: 41.8744, longitude: -87.6690 }, inventory: { bloodBags: 54, pharmaceuticals: 120, devices: 33 } },
+  { id: "h4", name: "Mount Sinai", status: "LOW", location: { latitude: 41.8610, longitude: -87.6946 }, inventory: { bloodBags: 8, pharmaceuticals: 22, devices: 5 } }
 ];
 
 export default function MapViewer() {
-  const [hospitals, setHospitals] = useState([]); 
+  const [hospitals, setHospitals] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [routeOrigin, setRouteOrigin] = useState(null);
   const [routeDest, setRouteDest] = useState(null);
   const [routeGeoJSON, setRouteGeoJSON] = useState(null);
@@ -43,7 +43,7 @@ export default function MapViewer() {
         const data = await response.json();
         if (data.routes && data.routes[0]) {
           setRouteGeoJSON(data.routes[0].geometry);
-          setEtaMins(Math.round(data.routes[0].duration / 60)); 
+          setEtaMins(Math.round(data.routes[0].duration / 60));
         }
       };
       fetchRoute();
@@ -54,11 +54,11 @@ export default function MapViewer() {
   }, [routeOrigin, routeDest]);
 
   if (isLoading) {
-    return <div style={{ height: '100vh', width: '100vw', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#111', color: '#fff' }}>Loading Map...</div>;
+    return <div style={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#111', color: '#fff' }}>Loading Map...</div>;
   }
 
   return (
-    <div style={{ height: '100vh', width: '100vw', position: 'relative', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ height: '100%', width: '100%', position: 'relative', fontFamily: 'Arial, sans-serif' }}>
       {etaMins && (
         <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(15, 23, 42, 0.9)', color: '#fff', padding: '15px 25px', borderRadius: '8px', border: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', zIndex: 10 }}>
           <div>
@@ -83,7 +83,7 @@ export default function MapViewer() {
           const pinColor = getStatusColor(hospital.status);
           const isOrigin = routeOrigin?.id === hospital.id;
           const isDest = routeDest?.id === hospital.id;
-          
+
           return (
             <React.Fragment key={hospital.id}>
               <Marker longitude={hospital.location.longitude} latitude={hospital.location.latitude} anchor="bottom">
@@ -92,13 +92,16 @@ export default function MapViewer() {
 
               {selectedHospital?.id === hospital.id && (
                 <Popup longitude={hospital.location.longitude} latitude={hospital.location.latitude} anchor="top" onClose={() => setSelectedHospital(null)} closeOnClick={false}>
-                  <div style={{ padding: '8px', color: '#333', minWidth: '150px' }}>
-                    <h4 style={{ margin: '0 0 5px 0' }}>{hospital.name}</h4>
-                    <p style={{ margin: '0 0 10px 0', fontSize: '13px', fontWeight: 'bold', color: pinColor }}>STATUS: {hospital.status}</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      {hospital.status === 'DONOR' && <button onClick={() => { setRouteOrigin(hospital); setSelectedHospital(null); }} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '6px', cursor: 'pointer', borderRadius: '4px' }}>Set as Supply Origin</button>}
-                      {(hospital.status === 'CRITICAL' || hospital.status === 'LOW') && <button onClick={() => { setRouteDest(hospital); setSelectedHospital(null); }} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px', cursor: 'pointer', borderRadius: '4px' }}>Set as Destination</button>}
+                  <div style={{ padding: '8px', color: '#333', minWidth: '180px' }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontWeight: 'bold' }}>{hospital.name}</h4>
+                    <p style={{ margin: '0 0 10px 0', fontSize: '13px', fontWeight: 'bold', color: pinColor }}>{hospital.status}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '10px', fontSize: '13px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Blood Bags</span><span>{hospital.inventory.bloodBags}</span></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Pharmaceuticals</span><span>{hospital.inventory.pharmaceuticals}</span></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Devices</span><span>{hospital.inventory.devices}</span></div>
                     </div>
+                    {hospital.status === 'DONOR' && <button onClick={() => { setRouteOrigin(hospital); setSelectedHospital(null); }} style={{ width: '100%', background: '#3b82f6', color: '#fff', border: 'none', padding: '6px', cursor: 'pointer', borderRadius: '4px' }}>Set as Supply Origin</button>}
+                    {(hospital.status === 'CRITICAL' || hospital.status === 'LOW') && <button onClick={() => { setRouteDest(hospital); setSelectedHospital(null); }} style={{ width: '100%', background: '#ef4444', color: '#fff', border: 'none', padding: '6px', cursor: 'pointer', borderRadius: '4px' }}>Set as Destination</button>}
                   </div>
                 </Popup>
               )}
