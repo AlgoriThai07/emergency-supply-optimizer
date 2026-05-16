@@ -7,7 +7,6 @@ export interface InventoryLog {
   hospitalName: string;
 
   inventoryItemId: string;
-  itemKey: string;
   itemName: string;
 
   previousCount: number;
