@@ -4,12 +4,13 @@ import { getFirestore } from "firebase/firestore";
 // TODO: Replace with your actual Firebase project config from the Firebase Console
 // Project Settings > General > Your apps > Web apps
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyAnZZOV2i0hc-yy0MXmWOx2TdVGy8R08ew",
   authDomain: "beacon-157cb.firebaseapp.com",
   projectId: "beacon-157cb",
   storageBucket: "beacon-157cb.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  messagingSenderId: "430545613579",
+  appId: "1:430545613579:web:f76f41b1f8d22687e2680e",
+  measurementId: "G-3XE21JTSML"
 };
 
 const app = initializeApp(firebaseConfig);
